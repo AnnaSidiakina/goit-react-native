@@ -37,6 +37,10 @@ export default function SignUp() {
     RobotoBold: require("../assets/fonts/Roboto-Bold.ttf"),
   });
 
+  const [isFocusedName, setIsFocusedName] = useState(false);
+  const [isFocusedEmail, setIsFocusedEmail] = useState(false);
+  const [isFocusedPassword, setIsFocusedPassword] = useState(false);
+
   useEffect(() => {
     const onChange = () => {
       const width = Dimensions.get("window").width - 16 * 2;
@@ -69,6 +73,9 @@ export default function SignUp() {
   const keyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
+    setIsFocusedEmail(false);
+    setIsFocusedPassword(false);
+    setIsFocusedName(false);
   };
 
   const handleSubmit = () => {
@@ -107,11 +114,16 @@ export default function SignUp() {
                 }}
               >
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    backgroundColor: isFocusedName ? "#fff" : "#F6F6F6",
+                    borderColor: isFocusedName ? "#FF6C00" : "#E8E8E8",
+                  }}
                   placeholder="Name"
                   value={userState.name}
                   onFocus={() => {
                     setIsShowKeyboard(true);
+                    setIsFocusedName(true);
                   }}
                   onChangeText={(value) =>
                     setUserState((prevState) => ({
@@ -121,11 +133,16 @@ export default function SignUp() {
                   }
                 />
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    backgroundColor: isFocusedEmail ? "#fff" : "#F6F6F6",
+                    borderColor: isFocusedEmail ? "#FF6C00" : "#E8E8E8",
+                  }}
                   placeholder="Email"
                   value={userState.email}
                   onFocus={() => {
                     setIsShowKeyboard(true);
+                    setIsFocusedEmail(true);
                   }}
                   onChangeText={(value) =>
                     setUserState((prevState) => ({
@@ -136,12 +153,17 @@ export default function SignUp() {
                 />
                 <View style={{ position: "relative" }}>
                   <TextInput
-                    style={styles.input}
+                    style={{
+                      ...styles.input,
+                      backgroundColor: isFocusedPassword ? "#fff" : "#F6F6F6",
+                      borderColor: isFocusedPassword ? "#FF6C00" : "#E8E8E8",
+                    }}
                     placeholder="Password"
                     secureTextEntry={true}
                     value={userState.password}
                     onFocus={() => {
                       setIsShowKeyboard(true);
+                      setIsFocusedPassword(true);
                     }}
                     onChangeText={(value) =>
                       setUserState((prevState) => ({
