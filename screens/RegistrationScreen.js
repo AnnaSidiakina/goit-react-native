@@ -15,6 +15,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import Add from "../assets/images/add.svg";
 
 const initialeUserState = {
   name: "",
@@ -25,8 +26,10 @@ const initialeUserState = {
 export default function SignUp() {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [userState, setUserState] = useState(initialeUserState);
-  const window = Dimensions.get("window").width - 16 * 2;
-  const [dimensions, setDimensions] = useState(window);
+
+  const [windowWidth, setWindowWidth] = useState(
+    Dimensions.get("window").width - 16 * 2
+  );
 
   const [fontsLoaded] = useFonts({
     RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
@@ -35,11 +38,14 @@ export default function SignUp() {
   });
 
   useEffect(() => {
-    const subscription = Dimensions.addEventListener("change", (window) => {
-      setDimensions(window);
-    });
-    return () => subscription?.remove();
-  }, [dimensions]);
+    const onChange = () => {
+      const width = Dimensions.get("window").width - 16 * 2;
+      setWindowWidth(width);
+    };
+    const dimensionsHandler = Dimensions.addEventListener("change", onChange);
+
+    return () => dimensionsHandler.remove();
+  }, []);
 
   // fonts
 
@@ -73,9 +79,8 @@ export default function SignUp() {
   };
 
   return (
-    <ScrollView style={styles.container} onLayout={onLayout}>
-      <TouchableWithoutFeedback onPress={keyboardHide}>
-        {/* <View style={styles.container}> */}
+    <TouchableWithoutFeedback onPress={keyboardHide}>
+      <ScrollView style={styles.container} onLayout={onLayout}>
         <ImageBackground
           style={styles.imgBgr}
           source={require("../assets/images/imageBgr.png")}
@@ -90,13 +95,15 @@ export default function SignUp() {
                 marginTop: isShowKeyboard ? 147 : 263,
               }}
             >
+              <View style={styles.avatar}>
+                <Add style={styles.addButton} width={25} height={25}></Add>
+              </View>
               <Text style={styles.title}>Sign up</Text>
               <View
                 style={{
                   ...styles.form,
-                  //   marginBottom: isShowKeyboard ? 32 : 79,
-                  //   marginTop: isShowKeyboard ? 147 : 263,
-                  width: dimensions,
+
+                  width: windowWidth,
                 }}
               >
                 <TextInput
@@ -127,21 +134,26 @@ export default function SignUp() {
                     }))
                   }
                 />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Password"
-                  secureTextEntry={true}
-                  value={userState.password}
-                  onFocus={() => {
-                    setIsShowKeyboard(true);
-                  }}
-                  onChangeText={(value) =>
-                    setUserState((prevState) => ({
-                      ...prevState,
-                      password: value,
-                    }))
-                  }
-                />
+                <View style={{ position: "relative" }}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    secureTextEntry={true}
+                    value={userState.password}
+                    onFocus={() => {
+                      setIsShowKeyboard(true);
+                    }}
+                    onChangeText={(value) =>
+                      setUserState((prevState) => ({
+                        ...prevState,
+                        password: value,
+                      }))
+                    }
+                  />
+                  <TouchableOpacity>
+                    <Text style={styles.passwordInput}>Show password</Text>
+                  </TouchableOpacity>
+                </View>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   style={styles.button}
@@ -150,18 +162,17 @@ export default function SignUp() {
                   <Text style={styles.buttonTitle}>Sign up</Text>
                 </TouchableOpacity>
 
-                <View style={styles.bottomTextContainer}>
+                <TouchableOpacity style={styles.bottomTextContainer}>
                   <Text style={styles.bottomText}>
                     Already have an account? Sign in
                   </Text>
-                </View>
+                </TouchableOpacity>
               </View>
             </View>
           </KeyboardAvoidingView>
         </ImageBackground>
-        {/* </View> */}
-      </TouchableWithoutFeedback>
-    </ScrollView>
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -174,17 +185,29 @@ const styles = StyleSheet.create({
   },
   imgBgr: {
     flex: 1,
-    justifyContent: "center",
-    // resizeMode: "cover",
+    justifyContent: "flex-end",
   },
   formBgr: {
-    // height: 549,
-    flex: 1,
+    height: 549,
+    // flex: 1,
     backgroundColor: "#fff",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     paddingTop: 92,
     alignItems: "center",
+  },
+  avatar: {
+    position: "absolute",
+    top: -60,
+    width: 120,
+    height: 120,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 16,
+  },
+  addButton: {
+    position: "absolute",
+    left: 107,
+    bottom: 15,
   },
   title: {
     fontFamily: "RobotoBold",
@@ -208,6 +231,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
     padding: 16,
     marginBottom: 16,
+    fontSize: 16,
+  },
+  passwordInput: {
+    position: "absolute",
+    top: -54,
+    right: 0,
+    paddingRight: 16,
+    color: "#1B4371",
+    fontFamily: "RobotoRegular",
     fontSize: 16,
   },
 
