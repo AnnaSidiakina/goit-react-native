@@ -2,6 +2,9 @@
 import SignUp from "./screens/RegistrationScreen";
 import SignIn from "./screens/LoginScreen";
 import { StyleSheet, View } from "react-native";
+// import { NavigationContainer } from "@react-navigation/native";
+// import { createNativeStackNavigator } from "@react-navigation/native-stack";
+// import { NavigationContainer } from "@react-navigation/native";
 
 export default function App() {
   return (
