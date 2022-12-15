@@ -12,9 +12,7 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import { useState, useEffect, useCallback } from "react";
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
+import { useState, useEffect } from "react";
 import Add from "../../assets/images/add.svg";
 
 const initialeUserState = {
@@ -31,12 +29,6 @@ export default function SignIn({ navigation }) {
     Dimensions.get("window").width - 16 * 2
   );
 
-  const [fontsLoaded] = useFonts({
-    RobotoMedium: require("../../assets/fonts/Roboto-Medium.ttf"),
-    RobotoRegular: require("../../assets/fonts/Roboto-Regular.ttf"),
-    RobotoBold: require("../../assets/fonts/Roboto-Bold.ttf"),
-  });
-
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
 
@@ -49,25 +41,6 @@ export default function SignIn({ navigation }) {
 
     return () => dimensionsHandler.remove();
   }, []);
-
-  // fonts
-
-  useEffect(() => {
-    async function prepare() {
-      await SplashScreen.preventAutoHideAsync();
-    }
-    prepare();
-  }, []);
-
-  const onLayout = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
-
-  // end fonts
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
@@ -86,7 +59,7 @@ export default function SignIn({ navigation }) {
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
-      <ScrollView style={styles.container} onLayout={onLayout}>
+      <ScrollView style={styles.container}>
         <ImageBackground
           style={styles.imgBgr}
           source={require("../../assets/images/imageBgr.png")}
