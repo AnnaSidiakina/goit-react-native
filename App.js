@@ -1,25 +1,38 @@
 // import { StatusBar } from "expo-status-bar";
-import SignUp from "./screens/RegistrationScreen";
-import SignIn from "./screens/LoginScreen";
-import { StyleSheet, View } from "react-native";
-// import { NavigationContainer } from "@react-navigation/native";
-// import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import SignUp from "./screens/auth/RegistrationScreen";
+import SignIn from "./screens/auth/LoginScreen";
+import Home from "./screens/main/Home";
+
+const AuthStack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <SignUp />
-      {/* <SignIn /> */}
-    </View>
+    <NavigationContainer>
+      <AuthStack.Navigator>
+        <AuthStack.Screen
+          options={{
+            headerShown: false,
+          }}
+          name="Signin"
+          component={SignIn}
+        />
+        <AuthStack.Screen
+          options={{
+            headerShown: false,
+          }}
+          name="Signup"
+          component={SignUp}
+        />
+        <AuthStack.Screen
+          options={{
+            headerShown: false,
+          }}
+          name="Home"
+          component={Home}
+        />
+      </AuthStack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    // alignItems: "center",
-    // justifyContent: "center",
-  },
-});

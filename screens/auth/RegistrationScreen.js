@@ -15,7 +15,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import Add from "../assets/images/add.svg";
+import Add from "../../assets/images/add.svg";
 
 const initialeUserState = {
   name: "",
@@ -23,7 +23,7 @@ const initialeUserState = {
   password: "",
 };
 
-export default function SignIn() {
+export default function SignUp({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [userState, setUserState] = useState(initialeUserState);
 
@@ -32,11 +32,12 @@ export default function SignIn() {
   );
 
   const [fontsLoaded] = useFonts({
-    RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
-    RobotoRegular: require("../assets/fonts/Roboto-Regular.ttf"),
-    RobotoBold: require("../assets/fonts/Roboto-Bold.ttf"),
+    RobotoMedium: require("../../assets/fonts/Roboto-Medium.ttf"),
+    RobotoRegular: require("../../assets/fonts/Roboto-Regular.ttf"),
+    RobotoBold: require("../../assets/fonts/Roboto-Bold.ttf"),
   });
 
+  const [isFocusedName, setIsFocusedName] = useState(false);
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
 
@@ -74,6 +75,7 @@ export default function SignIn() {
     Keyboard.dismiss();
     setIsFocusedEmail(false);
     setIsFocusedPassword(false);
+    setIsFocusedName(false);
   };
 
   const handleSubmit = () => {
@@ -81,6 +83,7 @@ export default function SignIn() {
     Keyboard.dismiss();
     console.log(userState);
     setUserState(initialeUserState);
+    navigation.navigate("Home");
   };
 
   return (
@@ -88,7 +91,7 @@ export default function SignIn() {
       <ScrollView style={styles.container} onLayout={onLayout}>
         <ImageBackground
           style={styles.imgBgr}
-          source={require("../assets/images/imageBgr.png")}
+          source={require("../../assets/images/imageBgr.png")}
           resizeMode="cover"
         >
           <KeyboardAvoidingView
@@ -97,13 +100,13 @@ export default function SignIn() {
             <View
               style={{
                 ...styles.formBgr,
-                marginTop: isShowKeyboard ? 273 : 323,
+                marginTop: isShowKeyboard ? 147 : 263,
               }}
             >
               <View style={styles.avatar}>
                 <Add style={styles.addButton} width={25} height={25}></Add>
               </View>
-              <Text style={styles.title}>Sign in</Text>
+              <Text style={styles.title}>Sign up</Text>
               <View
                 style={{
                   ...styles.form,
@@ -111,6 +114,25 @@ export default function SignIn() {
                   width: windowWidth,
                 }}
               >
+                <TextInput
+                  style={{
+                    ...styles.input,
+                    backgroundColor: isFocusedName ? "#fff" : "#F6F6F6",
+                    borderColor: isFocusedName ? "#FF6C00" : "#E8E8E8",
+                  }}
+                  placeholder="Name"
+                  value={userState.name}
+                  onFocus={() => {
+                    setIsShowKeyboard(true);
+                    setIsFocusedName(true);
+                  }}
+                  onChangeText={(value) =>
+                    setUserState((prevState) => ({
+                      ...prevState,
+                      name: value,
+                    }))
+                  }
+                />
                 <TextInput
                   style={{
                     ...styles.input,
@@ -163,9 +185,12 @@ export default function SignIn() {
                   <Text style={styles.buttonTitle}>Sign up</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.bottomTextContainer}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Signin")}
+                  style={styles.bottomTextContainer}
+                >
                   <Text style={styles.bottomText}>
-                    Have no account? Sign up
+                    Already have an account? Sign in
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -227,9 +252,9 @@ const styles = StyleSheet.create({
     height: 50,
     fontFamily: "RobotoRegular",
     borderWidth: 1,
-    // borderColor: "#E8E8E8",
+    borderColor: "#E8E8E8",
     borderRadius: 8,
-    // backgroundColor: "#F6F6F6",
+    backgroundColor: "#F6F6F6",
     padding: 16,
     marginBottom: 16,
     fontSize: 16,
