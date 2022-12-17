@@ -7,7 +7,7 @@ import { useCallback } from "react";
 import { View } from "react-native";
 import SignUp from "./screens/auth/RegistrationScreen";
 import SignIn from "./screens/auth/LoginScreen";
-import Home from "./screens/main/Home";
+import Home from "./screens/mainScreens/Home";
 
 SplashScreen.preventAutoHideAsync();
 

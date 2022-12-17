@@ -130,7 +130,7 @@ export default function SignIn({ navigation }) {
                   </TouchableOpacity>
                 </View>
                 <TouchableOpacity
-                  activeOpacity={0.7}
+                  activeOpacity={1}
                   style={styles.button}
                   onPress={handleSubmit}
                 >
