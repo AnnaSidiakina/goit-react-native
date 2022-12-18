@@ -8,6 +8,10 @@ import { View } from "react-native";
 import SignUp from "./screens/auth/RegistrationScreen";
 import SignIn from "./screens/auth/LoginScreen";
 import Home from "./screens/mainScreens/Home";
+import { store } from "./redux/store";
+import { Provider } from "react-redux";
+import db from "./firebase/config";
+import { useState } from "react";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,34 +29,40 @@ export default function App() {
     }
   }, [fontsLoaded]);
 
+  const [user, setUser] = useState(null);
+
+  db.auth().onAuthStateChanged((user) => setUser(user));
+
   if (!fontsLoaded) return null;
   return (
-    <NavigationContainer>
-      <View style={{ flex: 1 }} onLayout={onLayout}>
-        <AuthStack.Navigator>
-          <AuthStack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="Signin"
-            component={SignIn}
-          />
-          <AuthStack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="Signup"
-            component={SignUp}
-          />
-          <AuthStack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="Home"
-            component={Home}
-          />
-        </AuthStack.Navigator>
-      </View>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <View style={{ flex: 1 }} onLayout={onLayout}>
+          <AuthStack.Navigator>
+            <AuthStack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="Signin"
+              component={SignIn}
+            />
+            <AuthStack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="Signup"
+              component={SignUp}
+            />
+            <AuthStack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="Home"
+              component={Home}
+            />
+          </AuthStack.Navigator>
+        </View>
+      </NavigationContainer>
+    </Provider>
   );
 }

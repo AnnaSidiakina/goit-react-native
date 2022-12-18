@@ -14,6 +14,8 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import Add from "../../assets/images/add.svg";
+import { useDispatch } from "react-redux";
+import { authSignUpUser } from "../../redux/auth/authOperations";
 
 const initialeUserState = {
   name: "",
@@ -24,6 +26,8 @@ const initialeUserState = {
 export default function SignUp({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [userState, setUserState] = useState(initialeUserState);
+
+  const dispatch = useDispatch();
 
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width - 16 * 2
@@ -55,6 +59,7 @@ export default function SignUp({ navigation }) {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     console.log(userState);
+    dispatch(authSignUpUser(userState));
     setUserState(initialeUserState);
     navigation.navigate("Home");
   };

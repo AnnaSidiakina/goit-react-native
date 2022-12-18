@@ -14,6 +14,9 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import Add from "../../assets/images/add.svg";
+import { useDispatch } from "react-redux";
+
+import { authSignInUser } from "../../redux/auth/authOperations";
 
 const initialeUserState = {
   name: "",
@@ -31,6 +34,8 @@ export default function SignIn({ navigation }) {
 
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const onChange = () => {
@@ -53,6 +58,7 @@ export default function SignIn({ navigation }) {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     console.log(userState);
+    dispatch(authSignInUser(useState));
     setUserState(initialeUserState);
     navigation.navigate("Home");
   };
@@ -134,7 +140,7 @@ export default function SignIn({ navigation }) {
                   style={styles.button}
                   onPress={handleSubmit}
                 >
-                  <Text style={styles.buttonTitle}>Sign up</Text>
+                  <Text style={styles.buttonTitle}>Sign in</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
