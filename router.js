@@ -1,13 +1,10 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
-import { useCallback } from "react";
-import { View } from "react-native";
+import React from "react";
 import SignUp from "./screens/auth/RegistrationScreen";
 import SignIn from "./screens/auth/LoginScreen";
 import Home from "./screens/mainScreens/Home";
+
+const AuthStack = createNativeStackNavigator();
 
 export const useRoute = (isAuth) => {
   if (!isAuth) {

@@ -56,12 +56,12 @@ export default function SignUp({ navigation }) {
   };
 
   const handleSubmit = () => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
-    console.log(userState);
+    // setIsShowKeyboard(false);
+    // Keyboard.dismiss();
+    // console.log(userState);
     dispatch(authSignUpUser(userState));
     setUserState(initialeUserState);
-    navigation.navigate("Home");
+    // navigation.navigate("Home");
   };
 
   return (

@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity } from "react-native";
@@ -6,13 +7,14 @@ import PostsScreen from "./PostsScreen";
 // import CreatePostsScreenContainer from "./CreatePostsScreenContainer";
 import CreatePostsScreen from "./CreatePostsScreen";
 import ProfileScreen from "./ProfileScreen";
+import CommentsScreen from "../nestedScreens/CommentsScreen";
+import MapScreen from "../nestedScreens/MapScreen";
 const MainTab = createBottomTabNavigator();
-const DeleteTab = createBottomTabNavigator();
+const PostsStack = createNativeStackNavigator();
 
-export default function Home() {
+export const HomeTabs = () => {
   return (
     <MainTab.Navigator
-      initialRouteName="Posts"
       screenOptions={{
         tabBarShowLabel: false,
         tabBarActiveTintColor: "#FF6C00",
@@ -49,7 +51,7 @@ export default function Home() {
               <Feather name="log-out" size={24} color="#BDBDBD" />
             </TouchableOpacity>
           ),
-          headerShown: false,
+          // headerShown: false,
           headerTitleAlign: "center",
           // tabBarStyle: { display: "none" },
         }}
@@ -74,12 +76,6 @@ export default function Home() {
               <Feather name="plus" size={size} color="#fff" focused={focused} />
             </TouchableOpacity>
           ),
-          // tabBarItemStyle: {
-          //   backgroundColor: "#FF6C00",
-          //   width: 70,
-          //   height: 40,
-          //   borderRadius: 20,
-          // },
           tabBarStyle: { display: "none" },
           headerShown: false,
           headerTitleAlign: "center",
@@ -104,13 +100,57 @@ export default function Home() {
             width: 70,
             height: 40,
           },
-          headerShown: false,
+          // headerShown: false,
           headerTitleAlign: "center",
         }}
       />
     </MainTab.Navigator>
   );
-}
+};
+const Home = () => {
+  return (
+    <PostsStack.Navigator>
+      <PostsStack.Screen
+        name="Home"
+        component={HomeTabs}
+        options={{
+          title: "Posts",
+          headerStyle: {
+            color: "#212121",
+          },
+          headerShown: false,
+          headerTitleAlign: "center",
+        }}
+      />
+      <PostsStack.Screen
+        name="Comments"
+        component={CommentsScreen}
+        options={{
+          title: "Comments",
+          headerStyle: {
+            color: "#212121",
+          },
+          headerTitleAlign: "center",
+          headerBackVisible: true,
+        }}
+      />
+      <PostsStack.Screen
+        name="Map"
+        component={MapScreen}
+        options={{
+          title: "Map",
+          headerStyle: {
+            color: "#212121",
+          },
+          headerTitleAlign: "center",
+          headerBackVisible: true,
+        }}
+      />
+    </PostsStack.Navigator>
+  );
+};
+
+export default Home;
 
 const styles = StyleSheet.create({
   container: {

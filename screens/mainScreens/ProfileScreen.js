@@ -2,6 +2,11 @@ import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
+import { authSignOutUser } from "../../redux/auth/authOperations";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserId } from "../../redux/auth/selectors";
+import { getName } from "../../redux/auth/selectors";
+import React, { useEffect, useState } from "react";
 
 import {
   StyleSheet,
@@ -10,13 +15,37 @@ import {
   ImageBackground,
   TouchableOpacity,
   Image,
+  FlatList,
 } from "react-native";
 import Add from "../../assets/images/add.svg";
-import { useState } from "react";
+import db from "../../firebase/config";
 
 export default function ProfileScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const [userPosts, setUserPosts] = useState([]);
+  const userId = useSelector(getUserId);
+  const userName = useSelector(getName);
   const [likeCount, setLikeCount] = useState(0);
-  const countLikes = () => setLikeCount((prevLikeCount) => prevLikeCount + 1);
+  // const countLikes = () => setLikeCount((prevLikeCount) => prevLikeCount + 1);
+
+  useEffect(() => {
+    getUserPosts();
+  }, []);
+
+  const getUserPosts = async () => {
+    await db
+      .firestore()
+      .collection("posts")
+      .where("userId", "==", userId)
+      .onSnapshot((data) =>
+        setUserPosts(data.docs.map((doc) => ({ ...doc.data() })))
+      );
+  };
+
+  const signOut = () => {
+    dispatch(authSignOutUser());
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -29,93 +58,90 @@ export default function ProfileScreen({ navigation }) {
             <View style={styles.avatar}>
               <Add style={styles.addButton} width={25} height={25}></Add>
             </View>
-            <TouchableOpacity activeOpacity={0.7} style={styles.logoutIcon}>
+            <TouchableOpacity
+              onPress={signOut}
+              activeOpacity={0.7}
+              style={styles.logoutIcon}
+            >
               <Feather name="log-out" size={24} color="#BDBDBD" />
             </TouchableOpacity>
-            <Text style={styles.title}>Anna Sidiakina</Text>
+            <Text style={styles.title}>{userName}</Text>
           </View>
 
-          <View style={styles.postsContainer}>
-            <View
-              style={{
-                borderWidth: 1,
-                borderRadius: 8,
-                borderColor: "#212121",
-              }}
-            >
-              <Image
-                // source={{ uri: item.picture }}
-                style={{ height: 240, borderRadius: 8 }}
-              />
-            </View>
-            <View style={styles.descriptionWrapper}>
-              <Text style={styles.descriptionText}>Description</Text>
-            </View>
-
-            <View style={styles.commentsLocationWrapper}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  flex: 1,
-                  marginRight: 27,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.navigate("Comments");
-                  }}
-                >
-                  <Fontisto
-                    name="comment"
-                    size={20}
-                    color="#BDBDBD"
-                    style={styles.icon}
+          <FlatList
+            data={userPosts}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.postsContainer}>
+                <View>
+                  <Image
+                    source={{ uri: item.picture }}
+                    style={{ height: 240, borderRadius: 8 }}
                   />
-                </TouchableOpacity>
-                <Text style={styles.text}>0</Text>
-              </View>
+                </View>
+                <View style={styles.descriptionWrapper}>
+                  <Text style={styles.descriptionText}>{item.description}</Text>
+                </View>
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  flex: 1,
-                }}
-              >
-                <TouchableOpacity onPress={countLikes}>
-                  <AntDesign
-                    name="like2"
-                    size={24}
-                    color="#FF6C00"
-                    style={styles.icon}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.text}>{likeCount}</Text>
+                <View style={styles.commentsLocationWrapper}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("Comments", {
+                        item,
+                      });
+                    }}
+                  >
+                    <View style={{ flexDirection: "row", marginRight: 27 }}>
+                      <Fontisto
+                        name="comment"
+                        size={20}
+                        color="#BDBDBD"
+                        style={styles.icon}
+                      />
+                      <Text style={styles.commentsNumber}>
+                        {item.commentsCount ? item.commentsCount : 0}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      flex: 1,
+                    }}
+                  >
+                    <TouchableOpacity>
+                      <AntDesign
+                        name="like2"
+                        size={24}
+                        color="#FF6C00"
+                        style={styles.icon}
+                      />
+                    </TouchableOpacity>
+                    <Text style={styles.commentsNumber}>
+                      {item.likes ? item.likes : "0"}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("Map", {
+                        location: item.location,
+                      });
+                    }}
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      <Ionicons
+                        style={styles.icon}
+                        name="location-outline"
+                        size={24}
+                        color="#BDBDBD"
+                      />
+                      <Text style={styles.locationText}>{item.place}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  flex: 4,
-                  justifyContent: "flex-end",
-                }}
-              >
-                <TouchableOpacity
-                  style={{ flexDirection: "row" }}
-                  onPress={() => {
-                    navigation.navigate("Map");
-                  }}
-                >
-                  <Ionicons
-                    style={styles.icon}
-                    name="location-outline"
-                    size={24}
-                    color="#BDBDBD"
-                  />
-                  <Text style={styles.text}>Place</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+            )}
+          />
         </View>
       </ImageBackground>
     </View>
@@ -186,12 +212,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     // justifyContent: "space-between",
   },
+  commentsNumber: {
+    color: "#BDBDBD",
+    fontFamily: "RobotoRegular",
+    fontSize: 16,
+  },
   icon: {
     marginRight: 8,
   },
-  text: {
+  locationText: {
     color: "#212121",
-    fontFamily: "RobotoMedium",
+    fontFamily: "RobotoRegular",
     fontSize: 16,
   },
 });

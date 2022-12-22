@@ -14,6 +14,10 @@ import {
 import { Camera } from "expo-camera";
 import { useState, useEffect } from "react";
 import * as Location from "expo-location";
+import db from "../../firebase/config";
+import { nanoid } from "nanoid";
+import { getName, getUserId } from "../../redux/auth/selectors";
+import { useSelector } from "react-redux";
 
 export default function DefaultCreatePostsScreen({ navigation }) {
   const [camera, setCamera] = useState(null);
@@ -22,9 +26,17 @@ export default function DefaultCreatePostsScreen({ navigation }) {
   const [description, setDescription] = useState("");
   const [place, setPlace] = useState("");
 
-  console.log("loc", location);
-
   const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Camera.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -48,6 +60,31 @@ export default function DefaultCreatePostsScreen({ navigation }) {
     console.log(picture.uri);
   };
 
+  const name = useSelector(getName);
+  const userId = useSelector(getUserId);
+
+  const uploadPostToServer = async () => {
+    const picture = await uploadPictureToServer();
+    const createPost = await db
+      .firestore()
+      .collection("posts")
+      .add({ picture, place, description, location, userId, name });
+  };
+
+  const uploadPictureToServer = async () => {
+    const response = await fetch(picture);
+    const file = await response.blob();
+    const pictureId = nanoid();
+    await db.storage().ref(`postPictures/${pictureId}`).put(file);
+
+    const processedPicture = await db
+      .storage()
+      .ref("postPictures")
+      .child(pictureId)
+      .getDownloadURL();
+    return processedPicture;
+  };
+
   //   if (errorMsg) {
   //     console.log(errorMsg);
   //   } else if (location) {
@@ -58,14 +95,10 @@ export default function DefaultCreatePostsScreen({ navigation }) {
     Keyboard.dismiss();
   };
 
-  const handleSendSubmit = () => {
-    navigation.navigate("DefaultPosts", {
-      picture,
-      description,
-      location,
-      place,
-    });
+  const handleSendSubmit = async () => {
+    uploadPostToServer();
     resetPost();
+    navigation.navigate("Posts");
   };
   function resetPost() {
     setDescription("");

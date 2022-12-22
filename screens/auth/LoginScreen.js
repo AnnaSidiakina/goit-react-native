@@ -55,12 +55,8 @@ export default function SignIn({ navigation }) {
   };
 
   const handleSubmit = () => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
-    console.log(userState);
-    dispatch(authSignInUser(useState));
+    dispatch(authSignInUser(userState));
     setUserState(initialeUserState);
-    navigation.navigate("Home");
   };
 
   return (
