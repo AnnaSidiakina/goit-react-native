@@ -18,10 +18,11 @@ import db from "../../firebase/config";
 import { nanoid } from "nanoid";
 import { getName, getUserId } from "../../redux/auth/selectors";
 import { useSelector } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
 
 export default function DefaultCreatePostsScreen({ navigation }) {
   const [camera, setCamera] = useState(null);
-  const [picture, setPicture] = useState("");
+  const [picture, setPicture] = useState(null);
   const [location, setLocation] = useState({});
   const [description, setDescription] = useState("");
   const [place, setPlace] = useState("");
@@ -50,6 +51,19 @@ export default function DefaultCreatePostsScreen({ navigation }) {
     })();
   }, []);
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPicture(result.assets[0].uri);
+    }
+  };
+
   const takePicture = async () => {
     const picture = await camera.takePictureAsync();
     const location = await Location.getCurrentPositionAsync();
@@ -57,18 +71,18 @@ export default function DefaultCreatePostsScreen({ navigation }) {
 
     setPicture(picture.uri);
     setLocation(location.coords);
-    console.log(picture.uri);
   };
 
   const name = useSelector(getName);
   const userId = useSelector(getUserId);
 
   const uploadPostToServer = async () => {
+    const date = new Date();
     const picture = await uploadPictureToServer();
     const createPost = await db
       .firestore()
       .collection("posts")
-      .add({ picture, place, description, location, userId, name });
+      .add({ picture, place, description, location, userId, name, date });
   };
 
   const uploadPictureToServer = async () => {
@@ -110,27 +124,28 @@ export default function DefaultCreatePostsScreen({ navigation }) {
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <View>
-          <Camera style={styles.camera} ref={setCamera}>
-            {picture && (
-              <View style={styles.takenPictureContainer}>
-                <Image
-                  source={{ uri: picture }}
-                  style={{ width: 100, height: 80 }}
-                />
-              </View>
-            )}
-            <TouchableOpacity
-              activeOpacity={1}
-              style={styles.cameraWrapper}
-              onPress={takePicture}
-            >
-              <FontAwesome name="camera" size={24} color="#BDBDBD" />
-            </TouchableOpacity>
-          </Camera>
+          {picture ? (
+            <View style={styles.takenPictureContainer}>
+              <Image
+                source={{ uri: picture }}
+                style={{ width: "100%", height: 240, borderRadius: 8 }}
+              />
+            </View>
+          ) : (
+            <Camera style={styles.camera} ref={setCamera}>
+              <TouchableOpacity
+                activeOpacity={1}
+                style={styles.cameraWrapper}
+                onPress={takePicture}
+              >
+                <FontAwesome name="camera" size={24} color="#BDBDBD" />
+              </TouchableOpacity>
+            </Camera>
+          )}
 
-          <View>
-            <Text style={styles.text}>Take a picture</Text>
-          </View>
+          <TouchableOpacity onPress={pickImage}>
+            <Text style={styles.text}>Upload a picture</Text>
+          </TouchableOpacity>
           <View>
             <TextInput
               placeholder="Image description"
@@ -177,7 +192,11 @@ export default function DefaultCreatePostsScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity activeOpacity={1} style={styles.deleteBtn}>
+        <TouchableOpacity
+          onPress={resetPost}
+          activeOpacity={1}
+          style={styles.deleteBtn}
+        >
           <Feather name="trash-2" size={24} color="#BDBDBD" />
         </TouchableOpacity>
       </View>
@@ -192,18 +211,12 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     backgroundColor: "#fff",
     justifyContent: "space-between",
-
-    // alignItems: "center",
   },
   cameraContainer: {
     marginBottom: 8,
     borderRadius: 8,
-    // borderWidth: 1,
-    // borderRadius: 8,
   },
   camera: {
-    // borderRadius: 8,
-    // borderWidth: 1,
     justifyContent: "center",
     height: 240,
     backgroundColor: "#F6F6F6",
@@ -221,12 +234,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   takenPictureContainer: {
-    marginRight: 40,
-    position: "absolute",
-    left: 0,
-    top: 0,
-    width: 100,
-    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+    height: 240,
   },
   inputDescription: {
     borderBottomColor: "#E8E8E8",

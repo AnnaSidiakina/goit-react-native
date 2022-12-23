@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import PostsScreen from "./PostsScreen";
+import { authSignOutUser } from "../../redux/auth/authOperations";
 // import CreatePostsScreenContainer from "./CreatePostsScreenContainer";
 import CreatePostsScreen from "./CreatePostsScreen";
 import ProfileScreen from "./ProfileScreen";
@@ -11,8 +12,13 @@ import CommentsScreen from "../nestedScreens/CommentsScreen";
 import MapScreen from "../nestedScreens/MapScreen";
 const MainTab = createBottomTabNavigator();
 const PostsStack = createNativeStackNavigator();
+import { useDispatch } from "react-redux";
 
 export const HomeTabs = () => {
+  const dispatch = useDispatch();
+  const signOut = () => {
+    dispatch(authSignOutUser());
+  };
   return (
     <MainTab.Navigator
       screenOptions={{
@@ -47,7 +53,11 @@ export const HomeTabs = () => {
             height: 40,
           },
           headerRight: () => (
-            <TouchableOpacity activeOpacity={1} style={{ marginRight: 20 }}>
+            <TouchableOpacity
+              onPress={signOut}
+              activeOpacity={1}
+              style={{ marginRight: 20 }}
+            >
               <Feather name="log-out" size={24} color="#BDBDBD" />
             </TouchableOpacity>
           ),

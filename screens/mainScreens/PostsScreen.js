@@ -12,12 +12,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import db from "../../firebase/config";
-import { getName } from "../../redux/auth/selectors";
+import { getName, getEmail } from "../../redux/auth/selectors";
 import { useSelector } from "react-redux";
 
 export default function DefaultPostsScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const userName = useSelector(getName);
+  const userEmail = useSelector(getEmail);
   // const [likeCount, setLikeCount] = useState(0);
   // const countLikes = async (item) => {
   //   let likes = item.likes ? item.likes + 1 : 0 + 1;
@@ -33,15 +34,24 @@ export default function DefaultPostsScreen({ navigation }) {
     await db
       .firestore()
       .collection("posts")
+      .orderBy("date", "desc")
       .onSnapshot((data) =>
         setPosts(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
       );
   };
 
+  const uploadLikes = async (item) => {
+    let likes = item.likes ? item.likes + 1 : 0 + 1;
+    await db
+      .firestore()
+      .collection("posts")
+      .doc(item.id)
+      .set({ ...item, likes });
+  };
+
   useEffect(() => {
     getAllPosts();
   }, []);
-  console.log("posts", posts);
 
   return (
     <View style={styles.container}>
@@ -55,7 +65,7 @@ export default function DefaultPostsScreen({ navigation }) {
         </View>
         <View>
           <Text style={styles.name}>{userName}</Text>
-          <Text>Email</Text>
+          <Text>{userEmail}</Text>
         </View>
       </View>
       <View>
@@ -64,6 +74,9 @@ export default function DefaultPostsScreen({ navigation }) {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <View style={styles.postsContainer}>
+              <View>
+                <Text style={styles.postAuthorName}>{item.name}</Text>
+              </View>
               <View>
                 <Image
                   source={{ uri: item.picture }}
@@ -94,24 +107,24 @@ export default function DefaultPostsScreen({ navigation }) {
                     </Text>
                   </View>
                 </TouchableOpacity>
-                {/* <View
+                <View
                   style={{
                     flexDirection: "row",
                     // flex: 1,
-                  }} */}
-                {/* > */}
-                {/* <TouchableOpacity onPress={countLikes(item)}>
+                  }}
+                >
+                  <TouchableOpacity onPress={() => uploadLikes(item)}>
                     <AntDesign
                       name="like2"
                       size={24}
                       color="#FF6C00"
                       style={styles.icon}
                     />
-                  </TouchableOpacity> */}
-                {/* <Text style={styles.commentsNumber}>
+                  </TouchableOpacity>
+                  <Text style={styles.commentsNumber}>
                     {item.likes ? item.likes : "0"}
                   </Text>
-                </View> */}
+                </View>
                 <TouchableOpacity
                   onPress={() => {
                     navigation.navigate("Map", {
@@ -171,6 +184,12 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     marginBottom: 32,
+  },
+  postAuthorName: {
+    marginBottom: 8,
+    color: "#212121",
+    fontFamily: "RobotoBold",
+    fontSize: 16,
   },
   descriptionWrapper: {
     marginTop: 8,

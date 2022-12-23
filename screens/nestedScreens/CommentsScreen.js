@@ -7,19 +7,17 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   FlatList,
-  TouchableWithoutFeedback,
   KeyboardAvoidingView,
-  Platform,
 } from "react-native";
-import { getName } from "../../redux/auth/selectors";
+import { getName, getUserId } from "../../redux/auth/selectors";
 import { useSelector } from "react-redux";
 import db from "../../firebase/config";
 
 export default function CommentsScreen({ route }) {
   const postId = route.params.item.id;
   const picture = route.params.item.picture;
+  const currentUserName = route.params.item.name;
   const [comment, setComment] = useState("");
   const [allComments, setAllComments] = useState(null);
   const name = useSelector(getName);
@@ -31,13 +29,15 @@ export default function CommentsScreen({ route }) {
 
   const createComment = async () => {
     const date = new Date().toLocaleString();
-    db.firestore()
+    await db
+      .firestore()
       .collection("posts")
       .doc(postId)
       .collection("comments")
       .add({ comment, name, date });
     setComment("");
-    db.firestore()
+    await db
+      .firestore()
       .collection("posts")
       .doc(postId)
       .set({ ...item, commentsCount: allComments.length + 1 });
@@ -66,28 +66,62 @@ export default function CommentsScreen({ route }) {
         <FlatList
           data={allComments}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.commentsContainer}>
-              <View>
-                <Text>{item.name}</Text>
-              </View>
-
-              <View style={styles.commentText}>
-                <Text
+          renderItem={({ item }) =>
+            currentUserName === item.name ? (
+              <View style={styles.commentsContainer}>
+                <View
                   style={{
-                    color: "#212121",
-                    fontSize: 13,
-                    fontFamily: "RobotoRegular",
+                    ...styles.commentText,
+                    marginRight: 16,
+                    borderTopLeftRadius: 6,
                   }}
                 >
-                  {item.comment}
-                </Text>
-                <View style={{ flex: 1, justifyContent: "flex-end" }}>
-                  <Text style={styles.date}>{item.date}</Text>
+                  <Text
+                    style={{
+                      color: "#212121",
+                      fontSize: 13,
+                      fontFamily: "RobotoRegular",
+                    }}
+                  >
+                    {item.comment}
+                  </Text>
+                  <View>
+                    <Text style={styles.date}>{item.date}</Text>
+                  </View>
+                </View>
+                <View>
+                  <Text>{item.name}</Text>
                 </View>
               </View>
-            </View>
-          )}
+            ) : (
+              <View style={styles.commentsContainer}>
+                <View>
+                  <Text>{item.name}</Text>
+                </View>
+
+                <View
+                  style={{
+                    ...styles.commentText,
+                    marginLeft: 16,
+                    borderTopRightRadius: 6,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#212121",
+                      fontSize: 13,
+                      fontFamily: "RobotoRegular",
+                    }}
+                  >
+                    {item.comment}
+                  </Text>
+                  <View style={styles.dateContainer}>
+                    <Text style={styles.date}>{item.date}</Text>
+                  </View>
+                </View>
+              </View>
+            )
+          }
         />
       </View>
       {/* </View> */}
@@ -125,17 +159,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 24,
   },
+
   commentText: {
     flex: 1,
     backgroundColor: "#F6F6F6",
     // width: "100%",
     padding: 16,
-    borderTopRightRadius: 6,
+
     borderBottomLeftRadius: 6,
     borderBottomRightRadius: 6,
-    marginLeft: 16,
 
     // width: "100%",
+  },
+  dateContainer: {
+    alignItems: "flex-end",
   },
   date: {
     color: "#BDBDBD",

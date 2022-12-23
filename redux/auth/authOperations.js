@@ -25,7 +25,7 @@ export const authSignUpUser =
       );
       console.log("user", user);
     } catch (error) {
-      console.log("error", error);
+      alert("Something went wrong. Please, try again");
       console.log("error.message", error.message);
     }
   };
@@ -38,6 +38,7 @@ export const authSignInUser =
       const user = await db.auth().signInWithEmailAndPassword(email, password);
       console.log("user", user);
     } catch (error) {
+      alert("Wrong name or password. Please, try again");
       console.log("error", error);
       console.log("error.message", error.message);
     }

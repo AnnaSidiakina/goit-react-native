@@ -7,12 +7,13 @@ import React from "react";
 import SignUp from "../screens/auth/RegistrationScreen";
 import SignIn from "../screens/auth/LoginScreen";
 import Home from "../screens/mainScreens/Home";
+import { getStateChange } from "../redux/auth/selectors";
 
 const AuthStack = createNativeStackNavigator();
 
 export default function Main() {
   //   const [user, setUser] = useState(null);
-  const { stateChange } = useSelector((state) => state.auth);
+  const stateChange = useSelector(getStateChange);
   const dispatch = useDispatch();
 
   useEffect(() => {

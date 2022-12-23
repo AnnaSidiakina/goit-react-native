@@ -11,21 +11,29 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   ScrollView,
+  Image,
 } from "react-native";
 import { useState, useEffect } from "react";
 import Add from "../../assets/images/add.svg";
 import { useDispatch } from "react-redux";
 import { authSignUpUser } from "../../redux/auth/authOperations";
+import db from "../../firebase/config";
+import * as ImagePicker from "expo-image-picker";
 
-const initialeUserState = {
-  name: "",
-  email: "",
-  password: "",
-};
+// const initialeUserState = {
+//   name: "",
+//   email: "",
+//   password: "",
+// };
 
 export default function SignUp({ navigation }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const [userState, setUserState] = useState(initialeUserState);
+  // const [userState, setUserState] = useState(initialeUserState);
+  const [secureText, setSecureText] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -37,6 +45,8 @@ export default function SignUp({ navigation }) {
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
 
+  const [avatar, setAvatar] = useState(null);
+
   useEffect(() => {
     const onChange = () => {
       const width = Dimensions.get("window").width - 16 * 2;
@@ -47,6 +57,22 @@ export default function SignUp({ navigation }) {
     return () => dimensionsHandler.remove();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        console.log(
+          "Sorry, we need camera roll permissions to make this work!"
+        );
+        return;
+      }
+    })();
+  }, []);
+
+  const handleName = (value) => setName(value);
+  const handleEmail = (value) => setEmail(value);
+  const handlePassword = (value) => setPassword(value);
+
   const keyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
@@ -56,12 +82,26 @@ export default function SignUp({ navigation }) {
   };
 
   const handleSubmit = () => {
-    // setIsShowKeyboard(false);
-    // Keyboard.dismiss();
-    // console.log(userState);
-    dispatch(authSignUpUser(userState));
-    setUserState(initialeUserState);
-    // navigation.navigate("Home");
+    if (!name || !email || !password) {
+      alert("Please, fill all the fields");
+    }
+    dispatch(authSignUpUser({ name, email, password }));
+    setName("");
+    setEmail("");
+    setPassword("");
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+    }
   };
 
   return (
@@ -82,8 +122,15 @@ export default function SignUp({ navigation }) {
               }}
             >
               <View style={styles.avatar}>
-                <Add style={styles.addButton} width={25} height={25}></Add>
+                <Image
+                  source={{ uri: avatar }}
+                  style={{ width: 120, height: 120, borderRadius: 16 }}
+                />
+                <TouchableOpacity onPress={pickImage}>
+                  <Add style={styles.addButton} width={25} height={25}></Add>
+                </TouchableOpacity>
               </View>
+
               <Text style={styles.title}>Sign up</Text>
               <View
                 style={{
@@ -99,17 +146,12 @@ export default function SignUp({ navigation }) {
                     borderColor: isFocusedName ? "#FF6C00" : "#E8E8E8",
                   }}
                   placeholder="Name"
-                  value={userState.name}
+                  value={name}
                   onFocus={() => {
                     setIsShowKeyboard(true);
                     setIsFocusedName(true);
                   }}
-                  onChangeText={(value) =>
-                    setUserState((prevState) => ({
-                      ...prevState,
-                      name: value,
-                    }))
-                  }
+                  onChangeText={handleName}
                 />
                 <TextInput
                   style={{
@@ -118,17 +160,12 @@ export default function SignUp({ navigation }) {
                     borderColor: isFocusedEmail ? "#FF6C00" : "#E8E8E8",
                   }}
                   placeholder="Email"
-                  value={userState.email}
+                  value={email}
                   onFocus={() => {
                     setIsShowKeyboard(true);
                     setIsFocusedEmail(true);
                   }}
-                  onChangeText={(value) =>
-                    setUserState((prevState) => ({
-                      ...prevState,
-                      email: value,
-                    }))
-                  }
+                  onChangeText={handleEmail}
                 />
                 <View style={{ position: "relative" }}>
                   <TextInput
@@ -138,21 +175,25 @@ export default function SignUp({ navigation }) {
                       borderColor: isFocusedPassword ? "#FF6C00" : "#E8E8E8",
                     }}
                     placeholder="Password"
-                    secureTextEntry={true}
-                    value={userState.password}
+                    secureTextEntry={secureText}
+                    value={password}
                     onFocus={() => {
                       setIsShowKeyboard(true);
                       setIsFocusedPassword(true);
                     }}
-                    onChangeText={(value) =>
-                      setUserState((prevState) => ({
-                        ...prevState,
-                        password: value,
-                      }))
-                    }
+                    onChangeText={handlePassword}
                   />
-                  <TouchableOpacity>
-                    <Text style={styles.passwordInput}>Show password</Text>
+                  <TouchableOpacity
+                    style={styles.showButton}
+                    onPress={() => {
+                      setSecureText((prevState) => !prevState);
+                    }}
+                  >
+                    {secureText ? (
+                      <Text style={styles.passwordInput}>Show</Text>
+                    ) : (
+                      <Text style={styles.passwordInput}>Hide</Text>
+                    )}
                   </TouchableOpacity>
                 </View>
                 <TouchableOpacity
@@ -237,10 +278,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
   },
-  passwordInput: {
+  showButton: {
     position: "absolute",
-    top: -54,
+    top: 15,
     right: 0,
+  },
+  passwordInput: {
     paddingRight: 16,
     color: "#1B4371",
     fontFamily: "RobotoRegular",

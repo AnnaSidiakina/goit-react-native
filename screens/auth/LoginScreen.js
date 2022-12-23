@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useState, useEffect } from "react";
 import Add from "../../assets/images/add.svg";
@@ -18,15 +19,20 @@ import { useDispatch } from "react-redux";
 
 import { authSignInUser } from "../../redux/auth/authOperations";
 
-const initialeUserState = {
-  name: "",
-  email: "",
-  password: "",
-};
+// const initialeUserState = {
+//   name: "",
+//   email: "",
+//   password: "",
+// };
 
 export default function SignIn({ navigation }) {
+  // const [name, setName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [secureText, setSecureText] = useState(true);
+
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const [userState, setUserState] = useState(initialeUserState);
+  // const [userState, setUserState] = useState(initialeUserState);
 
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width - 16 * 2
@@ -54,9 +60,17 @@ export default function SignIn({ navigation }) {
     setIsFocusedPassword(false);
   };
 
+  // const handleName = (value) => setName(value);
+  const handleEmail = (value) => setEmail(value);
+  const handlePassword = (value) => setPassword(value);
+
   const handleSubmit = () => {
-    dispatch(authSignInUser(userState));
-    setUserState(initialeUserState);
+    if (!email || !password) {
+      Alert.alert("Fill all the fields, please");
+    }
+    dispatch(authSignInUser({ email, password }));
+    setEmail("");
+    setPassword("");
   };
 
   return (
@@ -94,17 +108,12 @@ export default function SignIn({ navigation }) {
                     borderColor: isFocusedEmail ? "#FF6C00" : "#E8E8E8",
                   }}
                   placeholder="Email"
-                  value={userState.email}
+                  value={email}
                   onFocus={() => {
                     setIsShowKeyboard(true);
                     setIsFocusedEmail(true);
                   }}
-                  onChangeText={(value) =>
-                    setUserState((prevState) => ({
-                      ...prevState,
-                      email: value,
-                    }))
-                  }
+                  onChangeText={handleEmail}
                 />
                 <View style={{ position: "relative" }}>
                   <TextInput
@@ -115,20 +124,24 @@ export default function SignIn({ navigation }) {
                     }}
                     placeholder="Password"
                     secureTextEntry={true}
-                    value={userState.password}
+                    value={password}
                     onFocus={() => {
                       setIsShowKeyboard(true);
                       setIsFocusedPassword(true);
                     }}
-                    onChangeText={(value) =>
-                      setUserState((prevState) => ({
-                        ...prevState,
-                        password: value,
-                      }))
-                    }
+                    onChangeText={handlePassword}
                   />
-                  <TouchableOpacity>
-                    <Text style={styles.passwordInput}>Show password</Text>
+                  <TouchableOpacity
+                    style={styles.showButton}
+                    onPress={() => {
+                      setSecureText((prevState) => !prevState);
+                    }}
+                  >
+                    {secureText ? (
+                      <Text style={styles.passwordInput}>Show</Text>
+                    ) : (
+                      <Text style={styles.passwordInput}>Hide</Text>
+                    )}
                   </TouchableOpacity>
                 </View>
                 <TouchableOpacity

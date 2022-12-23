@@ -20,13 +20,15 @@ import {
 import Add from "../../assets/images/add.svg";
 import db from "../../firebase/config";
 
+import * as ImagePicker from "expo-image-picker";
+
 export default function ProfileScreen({ navigation }) {
   const dispatch = useDispatch();
   const [userPosts, setUserPosts] = useState([]);
   const userId = useSelector(getUserId);
   const userName = useSelector(getName);
-  const [likeCount, setLikeCount] = useState(0);
-  // const countLikes = () => setLikeCount((prevLikeCount) => prevLikeCount + 1);
+  // const [likeCount, setLikeCount] = useState(0);
+  const [avatar, setAvatar] = useState(null);
 
   useEffect(() => {
     getUserPosts();
@@ -38,12 +40,34 @@ export default function ProfileScreen({ navigation }) {
       .collection("posts")
       .where("userId", "==", userId)
       .onSnapshot((data) =>
-        setUserPosts(data.docs.map((doc) => ({ ...doc.data() })))
+        setUserPosts(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
       );
   };
 
   const signOut = () => {
     dispatch(authSignOutUser());
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+    }
+  };
+
+  const uploadLikes = async (item) => {
+    let likes = item.likes ? item.likes + 1 : 0 + 1;
+    await db
+      .firestore()
+      .collection("posts")
+      .doc(item.id)
+      .set({ ...item, likes });
   };
 
   return (
@@ -56,7 +80,13 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.formBgr}>
           <View style={{ alignItems: "center" }}>
             <View style={styles.avatar}>
-              <Add style={styles.addButton} width={25} height={25}></Add>
+              <Image
+                source={{ uri: avatar }}
+                style={{ width: 120, height: 120, borderRadius: 16 }}
+              />
+              <TouchableOpacity onPress={pickImage}>
+                <Add style={styles.addButton} width={25} height={25}></Add>
+              </TouchableOpacity>
             </View>
             <TouchableOpacity
               onPress={signOut}
@@ -109,7 +139,7 @@ export default function ProfileScreen({ navigation }) {
                       flex: 1,
                     }}
                   >
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => uploadLikes(item)}>
                       <AntDesign
                         name="like2"
                         size={24}
