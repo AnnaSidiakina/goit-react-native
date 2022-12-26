@@ -42,16 +42,8 @@ export default function DefaultPostsScreen({ navigation }) {
   };
 
   useEffect(() => {
-    Alert.alert(`Welkome back, ${userName}!`);
     getAllPosts();
   }, []);
-
-  useEffect(() => {
-    if (!userAvatar) {
-      Alert.alert("You can add your avatar on Profile screen");
-    }
-  }, []);
-  // console.log(posts);
 
   return (
     <View style={styles.container}>
