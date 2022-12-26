@@ -10,25 +10,17 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import db from "../../firebase/config";
-import { getName, getEmail } from "../../redux/auth/selectors";
+import { getName, getEmail, getAvatar } from "../../redux/auth/selectors";
 import { useSelector } from "react-redux";
 
 export default function DefaultPostsScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const userName = useSelector(getName);
   const userEmail = useSelector(getEmail);
-  // const [likeCount, setLikeCount] = useState(0);
-  // const countLikes = async (item) => {
-  //   let likes = item.likes ? item.likes + 1 : 0 + 1;
-
-  //   await db
-  //     .firestore()
-  //     .collection("posts")
-  //     .doc(item.id)
-  //     .set({ ...item, likes });
-  // };
+  const userAvatar = useSelector(getAvatar);
 
   const getAllPosts = async () => {
     await db
@@ -50,18 +42,36 @@ export default function DefaultPostsScreen({ navigation }) {
   };
 
   useEffect(() => {
+    Alert.alert(`Welkome back, ${userName}!`);
     getAllPosts();
   }, []);
+
+  useEffect(() => {
+    if (!userAvatar) {
+      Alert.alert("You can add your avatar on Profile screen");
+    }
+  }, []);
+  console.log(posts);
 
   return (
     <View style={styles.container}>
       <View style={styles.userWrapper}>
         <View style={styles.imageWrapper}>
-          <Image
-            style={styles.avatar}
-            resizeMode="cover"
-            source={require("../../assets/images/avatar.jpg")}
-          />
+          {!userAvatar ? (
+            <Image
+              source={{
+                uri: "https://cdn.pixabay.com/photo/2016/06/14/14/09/skeleton-1456627_960_720.png",
+              }}
+              resizeMode="cover"
+              style={styles.avatar}
+            />
+          ) : (
+            <Image
+              style={styles.avatar}
+              resizeMode="cover"
+              source={{ uri: userAvatar }}
+            />
+          )}
         </View>
         <View>
           <Text style={styles.name}>{userName}</Text>
@@ -110,7 +120,7 @@ export default function DefaultPostsScreen({ navigation }) {
                 <View
                   style={{
                     flexDirection: "row",
-                    // flex: 1,
+                    flex: 1,
                   }}
                 >
                   <TouchableOpacity onPress={() => uploadLikes(item)}>

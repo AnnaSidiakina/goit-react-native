@@ -16,7 +16,7 @@ import { useState, useEffect } from "react";
 import * as Location from "expo-location";
 import db from "../../firebase/config";
 import { nanoid } from "nanoid";
-import { getName, getUserId } from "../../redux/auth/selectors";
+import { getName, getUserId, getAvatar } from "../../redux/auth/selectors";
 import { useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 
@@ -75,14 +75,21 @@ export default function DefaultCreatePostsScreen({ navigation }) {
 
   const name = useSelector(getName);
   const userId = useSelector(getUserId);
+  const avatar = useSelector(getAvatar);
 
   const uploadPostToServer = async () => {
     const date = new Date();
     const picture = await uploadPictureToServer();
-    const createPost = await db
-      .firestore()
-      .collection("posts")
-      .add({ picture, place, description, location, userId, name, date });
+    const createPost = await db.firestore().collection("posts").add({
+      picture,
+      place,
+      description,
+      location,
+      userId,
+      name,
+      date,
+      avatar,
+    });
   };
 
   const uploadPictureToServer = async () => {
@@ -98,12 +105,6 @@ export default function DefaultCreatePostsScreen({ navigation }) {
       .getDownloadURL();
     return processedPicture;
   };
-
-  //   if (errorMsg) {
-  //     console.log(errorMsg);
-  //   } else if (location) {
-  //     console.log(JSON.stringify(location));
-  //   }
 
   const keyboardHide = () => {
     Keyboard.dismiss();

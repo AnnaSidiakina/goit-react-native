@@ -2,10 +2,13 @@ import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
-import { authSignOutUser } from "../../redux/auth/authOperations";
+import { nanoid } from "nanoid";
+import {
+  authSignOutUser,
+  authChangeUserAvatar,
+} from "../../redux/auth/authOperations";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserId } from "../../redux/auth/selectors";
-import { getName } from "../../redux/auth/selectors";
+import { getUserId, getName, getAvatar } from "../../redux/auth/selectors";
 import React, { useEffect, useState } from "react";
 
 import {
@@ -16,6 +19,7 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  Alert,
 } from "react-native";
 import Add from "../../assets/images/add.svg";
 import db from "../../firebase/config";
@@ -27,8 +31,8 @@ export default function ProfileScreen({ navigation }) {
   const [userPosts, setUserPosts] = useState([]);
   const userId = useSelector(getUserId);
   const userName = useSelector(getName);
-  // const [likeCount, setLikeCount] = useState(0);
-  const [avatar, setAvatar] = useState(null);
+  const userAvatar = useSelector(getAvatar);
+  const [newAvatar, setNewAvatar] = useState(null);
 
   useEffect(() => {
     getUserPosts();
@@ -47,6 +51,17 @@ export default function ProfileScreen({ navigation }) {
   const signOut = () => {
     dispatch(authSignOutUser());
   };
+  useEffect(() => {
+    (async () => {
+      let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        console.log(
+          "Sorry, we need camera roll permissions to make this work!"
+        );
+        return;
+      }
+    })();
+  }, []);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -57,7 +72,37 @@ export default function ProfileScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
+      setNewAvatar(result.assets[0].uri);
+    }
+  };
+  console.log("pickImg", newAvatar);
+
+  const uploadPictureToServer = async () => {
+    try {
+      const response = await fetch(newAvatar);
+      const file = await response.blob();
+      const uniqueAvatarId = nanoid();
+      await db.storage().ref(`avatar/${uniqueAvatarId}`).put(file);
+
+      const processedPicture = await db
+        .storage()
+        .ref("avatar")
+        .child(uniqueAvatarId)
+        .getDownloadURL();
+      return processedPicture;
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const handleSubmit = async () => {
+    try {
+      const avatar = await uploadPictureToServer();
+      console.log("submit", avatar);
+      dispatch(authChangeUserAvatar({ avatar }));
+      Alert.alert("Your avatar has been added");
+      setNewAvatar(null);
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
@@ -80,13 +125,31 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.formBgr}>
           <View style={{ alignItems: "center" }}>
             <View style={styles.avatar}>
-              <Image
-                source={{ uri: avatar }}
-                style={{ width: 120, height: 120, borderRadius: 16 }}
-              />
-              <TouchableOpacity onPress={pickImage}>
-                <Add style={styles.addButton} width={25} height={25}></Add>
-              </TouchableOpacity>
+              {newAvatar ? (
+                <Image
+                  source={{ uri: newAvatar }}
+                  style={{ width: 120, height: 120, borderRadius: 16 }}
+                />
+              ) : (
+                <Image
+                  source={{ uri: userAvatar }}
+                  style={{ width: 120, height: 120, borderRadius: 16 }}
+                />
+              )}
+              {newAvatar ? (
+                <TouchableOpacity onPress={handleSubmit}>
+                  <AntDesign
+                    style={styles.addButton}
+                    name="checkcircleo"
+                    size={24}
+                    color="#439A97"
+                  />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={pickImage}>
+                  <Add style={styles.addButton} width={25} height={25}></Add>
+                </TouchableOpacity>
+              )}
             </View>
             <TouchableOpacity
               onPress={signOut}

@@ -14,25 +14,16 @@ import {
   Alert,
 } from "react-native";
 import { useState, useEffect } from "react";
-import Add from "../../assets/images/add.svg";
 import { useDispatch } from "react-redux";
 
 import { authSignInUser } from "../../redux/auth/authOperations";
 
-// const initialeUserState = {
-//   name: "",
-//   email: "",
-//   password: "",
-// };
-
 export default function SignIn({ navigation }) {
-  // const [name, setName] = useState('');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
 
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  // const [userState, setUserState] = useState(initialeUserState);
 
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width - 16 * 2
@@ -60,15 +51,15 @@ export default function SignIn({ navigation }) {
     setIsFocusedPassword(false);
   };
 
-  // const handleName = (value) => setName(value);
-  const handleEmail = (value) => setEmail(value);
-  const handlePassword = (value) => setPassword(value);
+  const handleEmail = (value) => setEmail(value.trim());
+  const handlePassword = (value) => setPassword(value.trim());
 
   const handleSubmit = () => {
-    if (!email || !password) {
+    if (!email.trim() || !password.trim()) {
       Alert.alert("Fill all the fields, please");
     }
     dispatch(authSignInUser({ email, password }));
+
     setEmail("");
     setPassword("");
   };
@@ -90,9 +81,6 @@ export default function SignIn({ navigation }) {
                 marginTop: isShowKeyboard ? 273 : 323,
               }}
             >
-              <View style={styles.avatar}>
-                <Add style={styles.addButton} width={25} height={25}></Add>
-              </View>
               <Text style={styles.title}>Sign in</Text>
               <View
                 style={{
@@ -172,9 +160,6 @@ export default function SignIn({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#fff",
-    // alignItems: "center",
-    // justifyContent: "center",
   },
   imgBgr: {
     flex: 1,
@@ -182,46 +167,26 @@ const styles = StyleSheet.create({
   },
   formBgr: {
     height: 549,
-    // flex: 1,
     backgroundColor: "#fff",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     paddingTop: 92,
     alignItems: "center",
   },
-  avatar: {
-    position: "absolute",
-    top: -60,
-    width: 120,
-    height: 120,
-    backgroundColor: "#F6F6F6",
-    borderRadius: 16,
-  },
-  addButton: {
-    position: "absolute",
-    left: 107,
-    bottom: 15,
-  },
   title: {
     fontFamily: "RobotoBold",
     fontSize: 30,
     textAlign: "center",
     marginBottom: 33,
-    // marginTop: 92,
   },
   form: {
     flex: 1,
-    // alignItems: "center",
-    // marginHorizontal: 16,
-    // justifyContent: "center",
   },
   input: {
     height: 50,
     fontFamily: "RobotoRegular",
     borderWidth: 1,
-    // borderColor: "#E8E8E8",
     borderRadius: 8,
-    // backgroundColor: "#F6F6F6",
     padding: 16,
     marginBottom: 16,
     fontSize: 16,

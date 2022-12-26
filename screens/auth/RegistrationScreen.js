@@ -12,6 +12,7 @@ import {
   Dimensions,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
 import { useState, useEffect } from "react";
 import Add from "../../assets/images/add.svg";
@@ -19,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { authSignUpUser } from "../../redux/auth/authOperations";
 import db from "../../firebase/config";
 import * as ImagePicker from "expo-image-picker";
+import { nanoid } from "nanoid";
 
 // const initialeUserState = {
 //   name: "",
@@ -30,6 +32,7 @@ export default function SignUp({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState(null);
 
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   // const [userState, setUserState] = useState(initialeUserState);
@@ -44,8 +47,6 @@ export default function SignUp({ navigation }) {
   const [isFocusedName, setIsFocusedName] = useState(false);
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
-
-  const [avatar, setAvatar] = useState(null);
 
   useEffect(() => {
     const onChange = () => {
@@ -69,9 +70,9 @@ export default function SignUp({ navigation }) {
     })();
   }, []);
 
-  const handleName = (value) => setName(value);
-  const handleEmail = (value) => setEmail(value);
-  const handlePassword = (value) => setPassword(value);
+  const handleName = (value) => setName(value.trim());
+  const handleEmail = (value) => setEmail(value.trim());
+  const handlePassword = (value) => setPassword(value.trim());
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
@@ -79,16 +80,6 @@ export default function SignUp({ navigation }) {
     setIsFocusedEmail(false);
     setIsFocusedPassword(false);
     setIsFocusedName(false);
-  };
-
-  const handleSubmit = () => {
-    if (!name || !email || !password) {
-      alert("Please, fill all the fields");
-    }
-    dispatch(authSignUpUser({ name, email, password }));
-    setName("");
-    setEmail("");
-    setPassword("");
   };
 
   const pickImage = async () => {
@@ -101,6 +92,41 @@ export default function SignUp({ navigation }) {
 
     if (!result.canceled) {
       setAvatar(result.assets[0].uri);
+    }
+  };
+  const uploadPictureToServer = async () => {
+    try {
+      const response = await fetch(avatar);
+      const file = await response.blob();
+      const uniqueAvatarId = nanoid();
+      await db.storage().ref(`avatar/${uniqueAvatarId}`).put(file);
+
+      const processedPicture = await db
+        .storage()
+        .ref("avatar")
+        .child(uniqueAvatarId)
+        .getDownloadURL();
+      console.log(processedPicture);
+      return processedPicture;
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!name.trim() || !email.trim() || !password.trim()) {
+        Alert.alert("Please, fill all the fields");
+      }
+      Alert.alert(`Welkome, ${name}!`);
+      const avatar = await uploadPictureToServer();
+      dispatch(authSignUpUser({ name, email, password, avatar: avatar }));
+      setName("");
+      setEmail("");
+      setPassword("");
+      setAvatar(null);
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
