@@ -6,7 +6,6 @@ const { updateUserProfile, signOutUser, authStateChange } = authSlice.actions;
 export const authSignUpUser =
   ({ name, email, password, avatar }) =>
   async (dispatch, getState) => {
-    // console.log(name, email, password);
     try {
       await db.auth().createUserWithEmailAndPassword(email, password);
       const user = await db.auth().currentUser;

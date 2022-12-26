@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import PostsScreen from "./PostsScreen";
 import { authSignOutUser } from "../../redux/auth/authOperations";
-// import CreatePostsScreenContainer from "./CreatePostsScreenContainer";
 import CreatePostsScreen from "./CreatePostsScreen";
 import ProfileScreen from "./ProfileScreen";
 import CommentsScreen from "../nestedScreens/CommentsScreen";
@@ -25,7 +24,6 @@ export const HomeTabs = () => {
         tabBarShowLabel: false,
         tabBarActiveTintColor: "#FF6C00",
         tabBarInactiveTintColor: "#212121CC",
-        // headerTitleAlign​: 'center',
         tabBarStyle: {
           paddingHorizontal: 60,
           height: 83,
@@ -61,9 +59,8 @@ export const HomeTabs = () => {
               <Feather name="log-out" size={24} color="#BDBDBD" />
             </TouchableOpacity>
           ),
-          // headerShown: false,
+
           headerTitleAlign: "center",
-          // tabBarStyle: { display: "none" },
         }}
       />
 
@@ -110,7 +107,7 @@ export const HomeTabs = () => {
             width: 70,
             height: 40,
           },
-          // headerShown: false,
+
           headerTitleAlign: "center",
         }}
       />

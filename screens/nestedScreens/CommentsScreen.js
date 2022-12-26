@@ -27,7 +27,6 @@ export default function CommentsScreen({ route }) {
   const item = route.params.item;
 
   const keyboardHide = () => {
-    //  setIsShowKeyboard(false);
     Keyboard.dismiss();
   };
 
@@ -183,13 +182,11 @@ const styles = StyleSheet.create({
   commentText: {
     flex: 1,
     backgroundColor: "#F6F6F6",
-    // width: "100%",
+
     padding: 16,
 
     borderBottomLeftRadius: 6,
     borderBottomRightRadius: 6,
-
-    // width: "100%",
   },
   dateContainer: {
     alignItems: "flex-end",

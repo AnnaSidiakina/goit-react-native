@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { authStateChangeUser } from "../redux/auth/authOperations";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -12,7 +12,6 @@ import { getStateChange } from "../redux/auth/selectors";
 const AuthStack = createNativeStackNavigator();
 
 export default function Main() {
-  //   const [user, setUser] = useState(null);
   const stateChange = useSelector(getStateChange);
   const dispatch = useDispatch();
 

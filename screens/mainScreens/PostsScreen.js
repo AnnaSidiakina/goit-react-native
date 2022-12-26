@@ -51,7 +51,7 @@ export default function DefaultPostsScreen({ navigation }) {
       Alert.alert("You can add your avatar on Profile screen");
     }
   }, []);
-  console.log(posts);
+  // console.log(posts);
 
   return (
     <View style={styles.container}>

@@ -22,12 +22,6 @@ import db from "../../firebase/config";
 import * as ImagePicker from "expo-image-picker";
 import { nanoid } from "nanoid";
 
-// const initialeUserState = {
-//   name: "",
-//   email: "",
-//   password: "",
-// };
-
 export default function SignUp({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

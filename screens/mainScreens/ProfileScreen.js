@@ -75,7 +75,6 @@ export default function ProfileScreen({ navigation }) {
       setNewAvatar(result.assets[0].uri);
     }
   };
-  console.log("pickImg", newAvatar);
 
   const uploadPictureToServer = async () => {
     try {
@@ -97,7 +96,6 @@ export default function ProfileScreen({ navigation }) {
   const handleSubmit = async () => {
     try {
       const avatar = await uploadPictureToServer();
-      console.log("submit", avatar);
       dispatch(authChangeUserAvatar({ avatar }));
       Alert.alert("Your avatar has been added");
       setNewAvatar(null);
