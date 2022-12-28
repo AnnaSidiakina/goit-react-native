@@ -12,7 +12,7 @@ import MapScreen from "../nestedScreens/MapScreen";
 const MainTab = createBottomTabNavigator();
 const PostsStack = createNativeStackNavigator();
 import { useDispatch } from "react-redux";
-
+import CreateIcon from "../../assets/images/createIcon.svg";
 export const HomeTabs = () => {
   const dispatch = useDispatch();
   const signOut = () => {
@@ -24,32 +24,20 @@ export const HomeTabs = () => {
         tabBarShowLabel: false,
         tabBarActiveTintColor: "#FF6C00",
         tabBarInactiveTintColor: "#212121CC",
-        tabBarStyle: {
-          paddingHorizontal: 60,
-          height: 83,
-          paddingBottom: 25,
-          paddingTop: 9,
-        },
+        // tabBarStyle: {
+        //   paddingHorizontal: 60,
+        //   height: 83,
+        //   paddingBottom: 25,
+        //   paddingTop: 9,
+        // },
       }}
     >
       <MainTab.Screen
         name="Posts"
         component={PostsScreen}
         options={{
-          tabBarIcon: ({ size, color, focused }) => (
-            <TouchableOpacity activeOpacity={1}>
-              <Feather
-                name="grid"
-                size={size}
-                color={color}
-                focused={focused}
-              />
-            </TouchableOpacity>
-          ),
-          tabBarItemStyle: {
-            width: 70,
-            height: 40,
-          },
+          tabBarIcon: () => <Feather name="grid" size={24} color="#212121CC" />,
+
           headerRight: () => (
             <TouchableOpacity
               onPress={signOut}
@@ -68,21 +56,7 @@ export const HomeTabs = () => {
         name="CreatePosts"
         component={CreatePostsScreen}
         options={{
-          tabBarIcon: ({ size, focused }) => (
-            <TouchableOpacity
-              activeOpacity={1}
-              style={{
-                width: 70,
-                height: 40,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 20,
-                backgroundColor: "#FF6C00",
-              }}
-            >
-              <Feather name="plus" size={size} color="#fff" focused={focused} />
-            </TouchableOpacity>
-          ),
+          tabBarIcon: () => <CreateIcon width={70} height={40} />,
           tabBarStyle: { display: "none" },
           headerShown: false,
           headerTitleAlign: "center",
@@ -94,14 +68,7 @@ export const HomeTabs = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ size, color, focused }) => (
-            <TouchableOpacity activeOpacity={1}>
-              <Feather
-                name="user"
-                size={size}
-                color={color}
-                focused={focused}
-              />
-            </TouchableOpacity>
+            <Feather name="user" size={size} color={color} focused={focused} />
           ),
           tabBarItemStyle: {
             width: 70,
