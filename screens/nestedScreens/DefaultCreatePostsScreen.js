@@ -10,15 +10,16 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   Keyboard,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { useState, useEffect } from "react";
 import * as Location from "expo-location";
 import db from "../../firebase/config";
-import { nanoid } from "nanoid";
 import { getName, getUserId, getAvatar } from "../../redux/auth/selectors";
 import { useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
+import uuid from "react-native-uuid";
 
 export default function DefaultCreatePostsScreen({ navigation }) {
   const [camera, setCamera] = useState(null);
@@ -47,7 +48,7 @@ export default function DefaultCreatePostsScreen({ navigation }) {
         return;
       }
       let locationRes = await Location.getCurrentPositionAsync({});
-      setLocation(locationRes);
+      setLocation(locationRes.coords);
     })();
   }, []);
 
@@ -67,7 +68,6 @@ export default function DefaultCreatePostsScreen({ navigation }) {
   const takePicture = async () => {
     const picture = await camera.takePictureAsync();
     const location = await Location.getCurrentPositionAsync();
-    console.log("location", location);
 
     setPicture(picture.uri);
     setLocation(location.coords);
@@ -95,7 +95,7 @@ export default function DefaultCreatePostsScreen({ navigation }) {
   const uploadPictureToServer = async () => {
     const response = await fetch(picture);
     const file = await response.blob();
-    const pictureId = nanoid();
+    const pictureId = uuid.v4();
     await db.storage().ref(`postPictures/${pictureId}`).put(file);
 
     const processedPicture = await db
@@ -147,31 +147,35 @@ export default function DefaultCreatePostsScreen({ navigation }) {
           <TouchableOpacity onPress={pickImage}>
             <Text style={styles.text}>Upload a picture</Text>
           </TouchableOpacity>
-          <View>
-            <TextInput
-              placeholder="Image description"
-              placeholderTextColor="#BDBDBD"
-              style={styles.inputDescription}
-              value={description}
-              onChangeText={setDescription}
-            />
-          </View>
-          <View style={styles.locationContainer}>
-            <Ionicons
-              style={styles.locationIcon}
-              name="location-outline"
-              size={24}
-              color="#BDBDBD"
-            />
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View>
+              <TextInput
+                placeholder="Image description"
+                placeholderTextColor="#BDBDBD"
+                style={styles.inputDescription}
+                value={description}
+                onChangeText={setDescription}
+              />
+            </View>
+            <View style={styles.locationContainer}>
+              <Ionicons
+                style={styles.locationIcon}
+                name="location-outline"
+                size={24}
+                color="#BDBDBD"
+              />
 
-            <TextInput
-              placeholder="Location"
-              placeholderTextColor="#BDBDBD"
-              style={styles.inputLocation}
-              value={place}
-              onChangeText={setPlace}
-            />
-          </View>
+              <TextInput
+                placeholder="Location"
+                placeholderTextColor="#BDBDBD"
+                style={styles.inputLocation}
+                value={place}
+                onChangeText={setPlace}
+              />
+            </View>
+          </KeyboardAvoidingView>
           <TouchableOpacity
             disabled={picture ? false : true}
             activeOpacity={1}

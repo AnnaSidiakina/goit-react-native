@@ -20,7 +20,7 @@ import { useDispatch } from "react-redux";
 import { authSignUpUser } from "../../redux/auth/authOperations";
 import db from "../../firebase/config";
 import * as ImagePicker from "expo-image-picker";
-import { nanoid } from "nanoid";
+import uuid from "react-native-uuid";
 
 export default function SignUp({ navigation }) {
   const [name, setName] = useState("");
@@ -64,7 +64,7 @@ export default function SignUp({ navigation }) {
     })();
   }, []);
 
-  const handleName = (value) => setName(value.trim());
+  const handleName = (value) => setName(value);
   const handleEmail = (value) => setEmail(value.trim());
   const handlePassword = (value) => setPassword(value.trim());
 
@@ -92,7 +92,7 @@ export default function SignUp({ navigation }) {
     try {
       const response = await fetch(avatar);
       const file = await response.blob();
-      const uniqueAvatarId = nanoid();
+      const uniqueAvatarId = uuid.v4();
       await db.storage().ref(`avatar/${uniqueAvatarId}`).put(file);
 
       const processedPicture = await db

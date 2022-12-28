@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
-import { nanoid } from "nanoid";
+import uuid from "react-native-uuid";
 import {
   authSignOutUser,
   authChangeUserAvatar,
@@ -80,7 +80,7 @@ export default function ProfileScreen({ navigation }) {
     try {
       const response = await fetch(newAvatar);
       const file = await response.blob();
-      const uniqueAvatarId = nanoid();
+      const uniqueAvatarId = uuid.v4();
       await db.storage().ref(`avatar/${uniqueAvatarId}`).put(file);
 
       const processedPicture = await db
